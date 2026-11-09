@@ -1,6 +1,6 @@
 // ============================================================================
 // Cut From Word - Extensão para SillyTavern
-// Permite cortar mensagens a partir de uma palavra com duplo clique
+// Corta a mensagem a partir de uma palavra, preservando a frase até o ponto final
 // ============================================================================
 
 import { extension_settings, getContext } from "../../../extensions.js";
@@ -11,7 +11,8 @@ const extensionSettings = extension_settings[extensionName];
 
 const defaultSettings = {
     confirmBeforeCut: true,
-    includeWordInCut: true,
+    cutToSentenceEnd: true,
+    includeWordInCut: false,
     showVisualIndicator: true,
     indicatorDuration: 3000,
     workOnUserMessages: true,
@@ -74,9 +75,28 @@ function truncateMessage(mesDiv, word, options) {
         return false;
     }
 
-    const cutPosition = options.includeWordInCut
-        ? wordIndex + word.length
-        : wordIndex;
+    let cutPosition;
+
+    if (options.cutToSentenceEnd) {
+        const startSearch = wordIndex;
+        const sentenceEnders = ['.', '!', '?'];
+        let foundEnd = -1;
+
+        for (let i = startSearch + word.length; i < fullText.length; i++) {
+            if (sentenceEnders.includes(fullText[i])) {
+                foundEnd = i;
+                break;
+            }
+        }
+
+        if (foundEnd !== -1) {
+            cutPosition = foundEnd + 1;
+        } else {
+            cutPosition = fullText.length;
+        }
+    } else {
+        cutPosition = options.includeWordInCut ? wordIndex + word.length : wordIndex;
+    }
 
     let newText = fullText.substring(0, cutPosition);
     newText = newText.trimEnd();
@@ -118,7 +138,7 @@ function onDoubleClick(event) {
     if (extensionSettings.confirmBeforeCut) {
         const confirmed = confirm(
             `Cortar a mensagem a partir da palavra "${word}"?\n\n` +
-            `Todo o texto a partir desta palavra será removido.`
+            `Todo o texto depois desta palavra será removido.`
         );
         if (!confirmed) {
             return;
