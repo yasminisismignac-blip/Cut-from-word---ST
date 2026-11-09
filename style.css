@@ -1,0 +1,17 @@
+/* Cut From Word Extension - Estilos */
+
+/* Indicador visual quando a mensagem é cortada */
+.mes_text.cut-from-word-indicator {
+    background-color: #fff3cd !important;
+    border-left: 4px solid #ffc107;
+    transition: background-color 1s ease;
+}
+
+/* Ícone pequeno ao lado de mensagens cortadas */
+.cut-from-word-marker {
+    color: #ffc107;
+    font-size: 0.8em;
+    margin-left: 4px;
+    cursor: help;
+    opacity: 0.7;
+}
